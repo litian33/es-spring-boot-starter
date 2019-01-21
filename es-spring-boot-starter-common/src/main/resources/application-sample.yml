@@ -5,14 +5,15 @@ es:
       - 'localhost:9200'
       - 'locaohost:9201'
     config: # 客户端配置参数
-      proxy: 'http://localhost:8080'
-      threadCount: 2
-      authInfo:
+      proxy: 'http://localhost:8080'  # Client连接Server时使用的http代理信息
+      threadCount: 2  # 网络请求处理线程数，默认和CPU内核数一致
+      authInfo: # ES基础认证信息
         user: 'user1'
         passwd: 'pass'
-      keyStore:
+      keyStore: # 使用SSL链接时的证书信息
         type: 'jks'
         path: 'dirxxx'
+        storePass: 'mypasswd'
     request: # 请求配置信息
       headers:  # 默认固定请求头信息
         - 'key1:value1'
