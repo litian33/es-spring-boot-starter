@@ -1,0 +1,22 @@
+es:
+  client:
+    enabled: true  # 是否启用客户端自动配置
+    hosts: # es-server主机列表信息
+      - 'localhost:9200'
+      - 'locaohost:9201'
+    config: # 客户端配置参数
+      proxy: 'http://localhost:8080'
+      threadCount: 2
+      authInfo:
+        user: 'user1'
+        passwd: 'pass'
+      keyStore:
+        type: 'jks'
+        path: 'dirxxx'
+    request: # 请求配置信息
+      headers:  # 默认固定请求头信息
+        - 'key1:value1'
+        - 'key2:value2'
+      maxRetryTimeout: 30000  # 超时重试最大总时长
+      socketTimeout: 30000 # socket超时时长
+      connectTimeout: 5000 # 单次连接超时时长

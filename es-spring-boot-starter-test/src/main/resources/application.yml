@@ -1,0 +1,16 @@
+es:
+  client:
+    enabled: true  # 是否启用客户端自动配置
+    hosts: # es-server主机列表信息
+      - 'localhost:9200'
+      - 'locaohost:9201'
+
+    request: # 请求配置信息
+      headers:
+        - 'key1:value1'
+        - 'key2:value2'
+      maxRetryTimeout: 30000
+      socketTimeout: 30000
+      connectTimeout: 5000
+server:
+  port: 8888

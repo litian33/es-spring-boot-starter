@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=cn.yzf.pass.es.starter.lowlevel.ESAutoConfiguration
