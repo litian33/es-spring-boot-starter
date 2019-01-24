@@ -24,7 +24,9 @@ public class ESAutoConfiguration implements DisposableBean {
 
     public ESAutoConfiguration(ESProperties prop) {
         RestClientBuilder builder = new CommonConfiguration(prop).getBuilder();
-        client = builder.build();
+        if (builder != null){
+            client = builder.build();
+        }
     }
 
     @Bean
