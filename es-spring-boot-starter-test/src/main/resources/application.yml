@@ -2,9 +2,15 @@ es:
   client:
     enabled: true  # 是否启用客户端自动配置
     hosts: # es-server主机列表信息
-      - 'localhost:9200'
-      - 'locaohost:9201'
-
+      - 'https://127.0.0.1:9200'
+    config:
+      authInfo: # ES基础认证信息
+        user: 'elastic'
+        passwd: 'elastic'
+      keyStore: # 使用SSL链接时的证书信息
+        type: 'jks'
+        path: 'localhost.p12'
+        storePass: 'elastic'
     request: # 请求配置信息
       headers:
         - 'key1:value1'

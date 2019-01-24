@@ -1,12 +1,11 @@
 package cn.yzf.pass.test;
 
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -20,22 +19,38 @@ public class TestApplication {
     }
 
     @Autowired
-    private RestHighLevelClient restClient;
+    private RestClient restClient;
 
     @GetMapping("/get")
-    public String get(String param){
-        GetRequest getRequest = new GetRequest(
-                "posts",
-                "doc",
-                "1");
+    public String get(@RequestParam String q){
 
-        GetResponse response = null;
+        Request request = new Request(
+                "GET",
+                q);
         try {
-            response = restClient.get(getRequest, RequestOptions.DEFAULT);
-            return response.toString();
+            Response response = restClient.performRequest(request);
+            System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
             return e.toString();
         }
+        return "success";
     }
+
+//    @Autowired
+//    private RestHighLevelClientClient restClient;
+//
+//    @GetMapping("/get")
+//    public String get(@RequestParam String q){
+//
+//        ClusterHealthRequest request = new ClusterHealthRequest();
+//        try {
+//            ClusterHealthResponse resp = restClient.cluster().health(request, RequestOptions.DEFAULT);
+//            System.out.println(resp);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return e.toString();
+//        }
+//        return "success";
+//    }
 }

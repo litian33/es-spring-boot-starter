@@ -8,8 +8,8 @@ es:
   client:
     enabled: true  # 是否启用客户端自动配置
     hosts: # es-server主机列表信息
-      - 'localhost:9200'
-      - 'locaohost:9201'
+      - 'http://localhost:9200'
+      - 'http://locaohost:9201'
     config: # 客户端配置参数
       proxy: 'http://localhost:8080'  # Client连接Server时使用的http代理信息
       threadCount: 2  # 网络请求处理线程数，默认和CPU内核数一致
@@ -17,9 +17,9 @@ es:
         user: 'user1'
         passwd: 'pass'
       keyStore: # 使用SSL链接时的证书信息
-        type: 'jks'
-        path: 'dirxxx'
-        storePass: 'mypasswd'
+        type: 'jks'  # keyStore 类型，默认jks
+        path: 'dirxxx'  # keyStore文件存储路径
+        storePass: 'mypasswd' # keyStore文件密码，为空则不填写
     request: # 请求配置信息
       headers:  # 默认固定请求头信息
         - 'key1:value1'

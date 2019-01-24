@@ -78,7 +78,7 @@ public class ClientProperteis {
         }
 
         public boolean valid(){
-            return !(StringUtils.isEmpty(type) || StringUtils.isEmpty(path));
+            return !StringUtils.isEmpty(path);
         }
     }
 

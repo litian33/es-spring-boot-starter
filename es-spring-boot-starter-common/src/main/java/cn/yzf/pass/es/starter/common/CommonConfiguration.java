@@ -22,9 +22,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -95,17 +100,16 @@ public class CommonConfiguration {
         }
     }
 
-    private void setClientProperties(ESProperties prop, RestClientBuilder builder) {
-        ClientProperteis client = prop.getConfig();
-
-        final String proxy = client.getProxy();
-        final int threadCount = client.getThreadCount();
-        final ClientProperteis.AuthProperties authInfo = client.getAuthInfo();
-        final ClientProperteis.KeyStoreProperties keyStore = client.getKeyStore();
+    private void setClientProperties(final ESProperties prop, RestClientBuilder builder) {
 
         builder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
             public HttpAsyncClientBuilder customizeHttpClient(
                     HttpAsyncClientBuilder httpClientBuilder) {
+                ClientProperteis client = prop.getConfig();
+                String proxy = client.getProxy();
+                int threadCount = client.getThreadCount();
+                ClientProperteis.AuthProperties authInfo = client.getAuthInfo();
+                ClientProperteis.KeyStoreProperties keyStore = client.getKeyStore();
 
                 if (!StringUtils.isEmpty(proxy)) {
                     httpClientBuilder.setProxy(
@@ -119,62 +123,50 @@ public class CommonConfiguration {
                 }
 
                 if (authInfo.valid()) {
-                    setBasicAuthInfo(httpClientBuilder);
+                    setBasicAuthInfo(httpClientBuilder, authInfo);
                 }
 
                 if (keyStore.valid()) {
-                    setSSLContext(httpClientBuilder);
+                    setSSLContext(httpClientBuilder, keyStore);
                 }
 
                 return httpClientBuilder;
             }
 
-            private void setBasicAuthInfo(HttpAsyncClientBuilder httpClientBuilder) {
+            private void setBasicAuthInfo(HttpAsyncClientBuilder httpClientBuilder, ClientProperteis.AuthProperties authInfo) {
                 final CredentialsProvider credentialsProvider =
                         new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(AuthScope.ANY,
                         new UsernamePasswordCredentials(authInfo.getUser(), authInfo.getUser()));
 
-                httpClientBuilder.disableAuthCaching();
+//                httpClientBuilder.disableAuthCaching();
                 httpClientBuilder
                         .setDefaultCredentialsProvider(credentialsProvider);
             }
 
-            private void setSSLContext(HttpAsyncClientBuilder httpClientBuilder) {
-                KeyStore truststore = null;
-                try {
-                    truststore = KeyStore.getInstance(keyStore.getType());
-                } catch (KeyStoreException e) {
-                    logger.error("load keystore instance error", e);
-                    return;
+            private void setSSLContext(HttpAsyncClientBuilder httpClientBuilder, ClientProperteis.KeyStoreProperties keyStore) {
+                SSLContextBuilder sslBuilder = SSLContexts.custom();
+                if (!StringUtils.isEmpty(keyStore.getType())){
+                    sslBuilder.setKeyStoreType(keyStore.getType());
                 }
-
-                Resource resource = new ClassPathResource(keyStore.getPath());
-                InputStream is = null;
-                try {
-                    is = resource.getInputStream();
+                try{
+                    File f = new ClassPathResource(keyStore.getPath()).getFile();
                     if (StringUtils.isEmpty(keyStore.getStorePass())) {
-                        truststore.load(is, null);
-                    } else {
-                        truststore.load(is, keyStore.getStorePass().toCharArray());
+                        sslBuilder.loadTrustMaterial(f);
+                    }else{
+                        sslBuilder.loadTrustMaterial(f, keyStore.getStorePass().toCharArray());
                     }
-                } catch (Exception e) {
-                    logger.error("load keystore file error", e);
+                }catch (IOException | NoSuchAlgorithmException | KeyStoreException | CertificateException ex){
+                    logger.error(MessageFormat.format("load keyStore file {0} error", keyStore.getPath()), ex);
                     return;
                 }
 
-                SSLContext sslContext = null;
                 try {
-                    SSLContextBuilder sslBuilder = SSLContexts.custom()
-                            .loadTrustMaterial(truststore, null);
-                    sslContext = sslBuilder.build();
-
-                } catch (Exception e) {
-                    logger.error("initialize sslcontext error", e);
-                    return;
+                    SSLContext sslContext = sslBuilder.build();
+                    httpClientBuilder.setSSLContext(sslContext);
+                } catch (KeyManagementException | NoSuchAlgorithmException e) {
+                    logger.error("initialize sslContext error",e);
                 }
-
-                httpClientBuilder.setSSLContext(sslContext);
             }
         });
     }

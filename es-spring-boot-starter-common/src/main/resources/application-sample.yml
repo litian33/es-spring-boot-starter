@@ -11,9 +11,9 @@ es:
         user: 'user1'
         passwd: 'pass'
       keyStore: # 使用SSL链接时的证书信息
-        type: 'jks'
-        path: 'dirxxx'
-        storePass: 'mypasswd'
+        type: 'jks'  # keyStore 类型，默认jks
+        path: 'dirxxx'  # keyStore文件存储路径
+        storePass: 'mypasswd' # keyStore文件密码，为空则不填写
     request: # 请求配置信息
       headers:  # 默认固定请求头信息
         - 'key1:value1'
