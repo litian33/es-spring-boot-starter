@@ -7,18 +7,16 @@ import org.apache.http.Header;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@TestPropertySource(locations = "classpath:application.yml")
 @RunWith(SpringRunner.class)
-@EnableAutoConfiguration
+@EnableConfigurationProperties(ESProperties.class)
 @SpringBootTest(classes = ConfigTest.class)
 public class ConfigTest {
 

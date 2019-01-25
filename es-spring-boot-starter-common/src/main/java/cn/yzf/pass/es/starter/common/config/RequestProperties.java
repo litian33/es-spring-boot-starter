@@ -5,6 +5,7 @@ import org.apache.http.message.BasicHeader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public class RequestProperties {
     // 默认请求头信息
@@ -24,23 +25,20 @@ public class RequestProperties {
     }
 
     public Header[] getDefaultHeaders() {
-        if (headers == null || headers.isEmpty()){
+        if (headers == null || headers.isEmpty()) {
             return null;
         }
 
-        Header[] defaultHeaders = new Header[headers.size()];
-        int headerIndex = 0;
-        for(int i=0;i<headers.size();i++){
-            String headerInfo = headers.get(i);
-            int idx = headerInfo.indexOf(':');
-            if(idx > 0 && idx < headerInfo.length()-1){
-                String key = headerInfo.substring(0, idx);
-                String value = headerInfo.substring(idx+1);
-                defaultHeaders[headerIndex++] = new BasicHeader(key, value);
-            }
-        }
+        Header[] defaultHeaders = headers.stream().filter(item -> item.indexOf(':') > 0 && item.indexOf(':') < item.length() - 1).map(item -> {
+            int idx = item.indexOf(':');
+            String key = item.substring(0, idx);
+            String value = item.substring(idx + 1);
+            return new BasicHeader(key, value);
+        }).toArray(Header[]::new);
+
         return defaultHeaders;
     }
+
     public void setHeaders(List<String> headers) {
         this.headers = headers;
     }

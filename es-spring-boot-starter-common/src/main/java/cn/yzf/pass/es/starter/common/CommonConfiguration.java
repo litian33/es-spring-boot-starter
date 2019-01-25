@@ -46,10 +46,7 @@ public class CommonConfiguration {
             logger.warn("no elasticsearch host configured! use localhost as default");
             builder = RestClient.builder(new HttpHost("localhost", 9200, "http"));
         } else {
-            HttpHost[] httpHosts = new HttpHost[hosts.size()];
-            for (int i = 0; i < hosts.size(); i++) {
-                httpHosts[i] = HttpHost.create(hosts.get(i));
-            }
+            HttpHost[] httpHosts = hosts.stream().distinct().map(HttpHost::create).toArray(HttpHost[]::new);
             builder = RestClient.builder(httpHosts);
         }
 
