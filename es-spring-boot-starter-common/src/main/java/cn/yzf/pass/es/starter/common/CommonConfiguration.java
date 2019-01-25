@@ -7,7 +7,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -18,15 +17,12 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -86,16 +82,14 @@ public class CommonConfiguration {
             final int connectTimeout = req.getConnectTimeout();
 
             builder.setRequestConfigCallback(
-                    new RestClientBuilder.RequestConfigCallback() {
-                        public RequestConfig.Builder customizeRequestConfig(RequestConfig.Builder requestConfigBuilder) {
-                            if (socketTimeout > 0) {
-                                requestConfigBuilder.setSocketTimeout(socketTimeout);
-                            }
-                            if (connectTimeout > 0) {
-                                requestConfigBuilder.setSocketTimeout(connectTimeout);
-                            }
-                            return requestConfigBuilder;
+                    requestConfigBuilder -> {
+                        if (socketTimeout > 0) {
+                            requestConfigBuilder.setSocketTimeout(socketTimeout);
                         }
+                        if (connectTimeout > 0) {
+                            requestConfigBuilder.setSocketTimeout(connectTimeout);
+                        }
+                        return requestConfigBuilder;
                     });
         }
     }
@@ -139,7 +133,7 @@ public class CommonConfiguration {
                 credentialsProvider.setCredentials(AuthScope.ANY,
                         new UsernamePasswordCredentials(authInfo.getUser(), authInfo.getUser()));
 
-//                httpClientBuilder.disableAuthCaching();
+                httpClientBuilder.disableAuthCaching();
                 httpClientBuilder
                         .setDefaultCredentialsProvider(credentialsProvider);
             }
